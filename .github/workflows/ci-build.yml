@@ -26,14 +26,14 @@ jobs:
 
       - name: Start Flask server in background
         run: |
-          python app.py &
-          sleep 5   # donne le temps au serveur de démarrer
+          nohup python app.py > flask.log 2>&1 &
+          sleep 8   # Attends que le serveur soit vraiment prêt (augmente si besoin)
 
       - name: Run pytest
         run: pytest tests/ -v
 
-      - name: Stop Flask server
-        if: always()   # s'exécute même si les tests échouent
+      - name: Stop Flask server (cleanup)
+        if: always()
         run: pkill -f "python app.py" || true
 
       - name: Set up Docker Buildx
@@ -48,5 +48,5 @@ jobs:
 
       - name: Build and push Docker image
         run: |
-          docker build -t ghcr.io/${{ github.repository_owner }}/flask-api-render:latest .
-          docker push ghcr.io/${{ github.repository_owner }}/flask-api-render:latest
+          docker build -t ghcr.io/${{ github.repository_owner }}/docker-exercise:latest .
+          docker push ghcr.io/${{ github.repository_owner }}/docker-exercise:latest
